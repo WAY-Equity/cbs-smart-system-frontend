@@ -27,4 +27,4 @@ Storage: https://drive.google.com/drive/folders/1bv2LLrNlG3Hcj1Wdy7iNd1P0PBVuRk_
 
 `node --experimental-strip-types --test tests/*.test.ts` checks authorization, input bounds, paired file/explanation storage, idempotent retries, and partial failure recovery. The website also needs `pnpm build`.
 
-Local browser checks cover multi-select, appending, removal, and explanation input. A real upload and external-visitor iframe access must be checked after authorization and deployment; they have not yet been verified.
+Verified on 2026-11-16: production CBS page loads the invitation-protected form and reads history; the no-invitation view keeps controls disabled. Local browser checks cover multi-select, appending, removal, and explanation input. The owner-only `SmokeTest.gs` check wrote two real files to Drive, verified their exact contents, explanation and history, retried without duplication, and trashed its test submission. The native file picker opens, but automated selection inside the hosted iframe was blocked by browser tooling; the complete browser-to-Drive submit path and a separate external Google account remain unverified.
