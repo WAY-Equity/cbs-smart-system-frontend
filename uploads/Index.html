@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="UTF-8"><meta name="referrer" content="no-referrer"><title>CBS | 資料共有</title>
+<style>
+:root{font-family:Arial,'Noto Sans JP',sans-serif;color:#203834;background:#f4f7f5;font-size:15px}*{box-sizing:border-box}body{margin:0}header{background:#fff;border-bottom:1px solid #e1e8e4;padding:20px 6%;font-size:16px;font-weight:700;letter-spacing:.04em}header span{color:#76877d;font-size:12px;margin-left:16px;font-weight:400}main{max-width:800px;margin:44px auto;padding:0 24px 60px}.eyebrow{color:#537767;font-size:11px;font-weight:700;letter-spacing:.16em}h1{font-size:30px;margin:10px 0 14px}p{line-height:1.85}.intro{color:#52675e;margin-bottom:28px}.card{background:#fff;border:1px solid #dde7e0;border-radius:14px;padding:28px;margin:20px 0;box-shadow:0 3px 12px #223a2d04}h2{font-size:18px;margin:0 0 18px}.step{background:#eaf2ed;color:#36684c;display:inline-grid;place-items:center;width:27px;height:27px;border-radius:50%;font-size:12px;margin-right:10px}button,.pick{font:inherit;cursor:pointer;border:1px solid #c9d8cf;background:white;color:#254e3b;border-radius:8px;padding:11px 20px;display:inline-block}button:hover,.pick:hover{background:#edf4ef}button:disabled{cursor:wait;opacity:.55}.drop{border:1px dashed #9bb8a7;border-radius:10px;text-align:center;padding:28px 16px;background:#f8fbf9}.drop.over{background:#e2f0e7}.drop p{margin:8px 0 16px}.hint{color:#6c7b73;font-size:12px;line-height:1.7}input[type=file]{position:absolute;width:1px;height:1px;opacity:0}.pick:focus-within{outline:3px solid #629d7e;outline-offset:3px}ul{padding:0;list-style:none}li{padding:12px 0;border-bottom:1px solid #edf1ee;display:flex;gap:12px;align-items:center}.filename{flex:1;overflow-wrap:anywhere}li small{display:block;color:#758279;margin-top:5px}li button{padding:5px 10px;font-size:12px}label.field{display:block;font-weight:600;margin-bottom:10px}textarea{font:inherit;line-height:1.7;width:100%;min-height:150px;resize:vertical;border:1px solid #c9d8cf;border-radius:9px;padding:14px;color:#203834}textarea:focus{outline:2px solid #629d7e;outline-offset:2px}.submit{background:#286447;color:white;border-color:#286447;padding:13px 32px;min-width:180px}.submit:hover{background:#1c5137}.bottom{display:flex;justify-content:space-between;align-items:center;gap:20px}.status{white-space:pre-wrap;line-height:1.7;margin:16px 0}.error{color:#a42e28}.success{color:#24633f;background:#eaf5ed;padding:16px;border-radius:8px}.history article{border-top:1px solid #e4ebe6;padding:18px 0}.history time{font-size:12px;color:#728379}.history p{white-space:pre-wrap;overflow-wrap:anywhere;margin:8px 0}.history ul{margin:8px 0}.history li{font-size:13px;border:0;padding:4px 0}.history-heading{display:flex;align-items:center;justify-content:space-between}.history-heading button{font-size:12px;padding:7px 12px}.owner{background:#fff6df;padding:16px;border-radius:8px;overflow-wrap:anywhere;margin-bottom:20px}.owner input{width:100%;padding:8px;margin-top:8px}footer{font-size:12px;color:#718278;text-align:center;margin-top:30px}fieldset{padding:0;border:0;margin:0;min-width:0}[hidden]{display:none!important}@media(max-width:520px){main{padding:0 16px;margin:28px auto}.card{padding:20px}h1{font-size:25px}.bottom{align-items:stretch;flex-direction:column}.submit{width:100%}header span{display:block;margin:5px 0 0}}
+</style></head><body>
+<header>CBS <span>資料共有 · WAY Equity Partners</span></header>
+<main><div class="eyebrow">DOCUMENT COLLECTION</div><h1>いつもの資料を、そのまま。</h1><p class="intro">物件ごとの資料をつなげるデータベースづくりに向けて、<br>普段お使いの資料を共有してください。事前の整理やファイル名の変更は不要です。</p>
+<div id="owner" class="owner" hidden><strong>管理者用：友方様にお渡しする専用リンク</strong><p class="hint">このリンクを持つ方は資料の送信と送信履歴の閲覧ができます。公開ページには掲載しないでください。</p><input id="invitation" readonly aria-label="専用の共有リンク"></div>
+<p id="access" role="status" class="status">接続を確認しています…</p>
+<form id="form"><fieldset id="fields" disabled>
+<section class="card"><h2><span class="step">1</span>資料を添付</h2><div id="drop" class="drop"><p>ファイルをここにドラッグ＆ドロップ</p><label class="pick">ファイルを選ぶ<input id="files" type="file" multiple aria-label="資料を選ぶ"></label><div class="hint">Excel・Word・PDF・写真など<br>複数選択・追加できます。1件10MB、合計20MB、20件まで。</div></div><ul id="selected" aria-label="選択した資料"></ul><p id="count" class="hint">まだファイルが選択されていません。</p></section>
+<section class="card"><h2><span class="step">2</span>資料について教えてください</h2><label class="field" for="explanation">資料の説明 <span class="hint">必須</span></label><textarea id="explanation" maxlength="5000" required placeholder="例：神戸の〇〇ビルで使っている作業仕様書と清掃報告書です。仕様書は設備部で更新し、報告書は作業後に担当者が作成しています。"></textarea><p class="hint">何に使う資料か、対象の物件・業務、作成・更新する方など、分かる範囲でご記入ください。添付した資料をまとめて説明していただけます。</p></section>
+<div class="bottom"><span class="hint">資料と説明をセットでWAYに共有します。<br>後から何度でも追加送信できます。</span><button id="submit" class="submit" type="submit">資料を送信する</button></div>
+</fieldset></form><p id="status" class="status" role="status" aria-live="polite"></p>
+<section class="card history"><div class="history-heading"><h2>送信済みの資料</h2><button id="refresh" disabled type="button">更新</button></div><p id="historyStatus" class="hint">専用リンクから開くと送信履歴を確認できます。</p><div id="history"></div></section>
+<footer>CBS × WAY Equity Partners</footer></main>
+<script>
+const ownerInvite = '<?= invitation ?>';
+const $ = id => document.getElementById(id);
+let token = '', selected = [], sending = false, attempt = null;
+const MAX = 20 * 1024 * 1024;
+function status(message, kind=''){ $('status').textContent=message; $('status').className='status '+kind; }
+function rpc(name,...args){ return new Promise((resolve,reject)=>google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[name](...args)); }
+function size(n){return n<1024*1024?Math.ceil(n/1024)+' KB':(n/1024/1024).toFixed(1)+' MB';}
+function renderFiles(){
+ $('selected').replaceChildren();
+ selected.forEach((file,i)=>{const li=document.createElement('li'), label=document.createElement('span'), small=document.createElement('small'), remove=document.createElement('button');label.className='filename';label.textContent=file.name;small.textContent=size(file.size);label.append(small);remove.type='button';remove.textContent='削除';remove.setAttribute('aria-label',file.name+'を削除');remove.onclick=()=>{if(!sending){selected.splice(i,1);attempt=null;renderFiles();}};li.append(label,remove);$('selected').append(li);});
+ $('count').textContent=selected.length?selected.length+'件 · 合計 '+size(selected.reduce((n,f)=>n+f.size,0)):'まだファイルが選択されていません。';
+}
+function addFiles(files){
+ if(sending)return;
+ const next=[...selected];let rejected=[];
+ for(const f of files){
+  if(next.some(x=>x.name===f.name&&x.size===f.size&&x.lastModified===f.lastModified))continue;
+  if(!f.size||f.size>10*1024*1024||f.name.length>200||/[\x00-\x1f/\\]/.test(f.name)||next.length>=20||next.reduce((n,x)=>n+x.size,0)+f.size>MAX){rejected.push(f.name);continue;}next.push(f);
+ }
+ selected=next;attempt=null;renderFiles();status(rejected.length?'追加できなかったファイル：'+rejected.join('、')+'。ファイル名・件数・容量を確認してください。':'',rejected.length?'error':'');
+}
+$('files').onchange=e=>{addFiles(Array.from(e.target.files));e.target.value='';};
+for(const type of ['dragover','drop'])$('drop').addEventListener(type,e=>{e.preventDefault();if(type==='dragover')$('drop').classList.add('over');else{$('drop').classList.remove('over');if(!$('fields').disabled)addFiles(Array.from(e.dataTransfer.files));}});
+$('drop').ondragleave=()=>$('drop').classList.remove('over');
+$('explanation').oninput=()=>{attempt=null;};
+function read(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onerror=()=>reject(new Error('ファイルを読み取れませんでした：'+file.name));r.onload=()=>resolve({name:file.name,base64:String(r.result).split(',')[1]});r.readAsDataURL(file);});}
+$('form').onsubmit=async e=>{
+ e.preventDefault();if(sending)return;
+ if(!selected.length){status('ファイルを選択してください。','error');$('files').focus();return;}
+ if(!$('explanation').value.trim()){status('資料の説明をご記入ください。','error');$('explanation').focus();return;}
+ sending=true;$('fields').disabled=true;$('submit').textContent='送信中…';
+ try{
+  if(!attempt){const files=[];for(const f of selected){status('ファイルを準備しています（'+(files.length+1)+' / '+selected.length+'件）…');files.push(await read(f));}attempt={id:crypto.randomUUID(),explanation:$('explanation').value,files};}
+  status(selected.length+'件の資料を送信しています。完了するまでこのページを閉じないでください。');
+  const receipt=await rpc('saveSubmission',token,attempt);
+  status(receipt.files.length+'件の資料を受け付けました。ご共有ありがとうございます。\n追加の資料も、このページからお送りいただけます。','success');selected=[];attempt=null;$('explanation').value='';renderFiles();await refresh();
+ }catch(error){status('送信を確認できませんでした。'+(error.message||'時間をおいて再度お試しください。')+'\n内容を変えずに再度送信すると、同じ受付として確認します。','error');}
+ finally{sending=false;$('fields').disabled=false;$('submit').textContent='資料を送信する';}
+};
+async function refresh(){
+ $('refresh').disabled=true;$('historyStatus').textContent='読み込み中…';
+ try{const rows=await rpc('listSubmissions',token);$('history').replaceChildren();for(const row of rows){const article=document.createElement('article'),time=document.createElement('time'),p=document.createElement('p'),ul=document.createElement('ul');time.textContent=new Date(row.at).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo'})+'（日本時間）';p.textContent=row.explanation;for(const f of row.files){const li=document.createElement('li');li.textContent=f.name+' · '+size(f.size);ul.append(li);}article.append(time,p,ul);$('history').append(article);}$('historyStatus').textContent=rows.length?rows.length+'件の送信を受け付けています。':'送信済みの資料はまだありません。';}
+ catch(error){$('historyStatus').textContent='履歴を更新できませんでした。'+(error.message||'再度お試しください。');}
+ finally{$('refresh').disabled=false;}
+}
+$('refresh').onclick=refresh;
+window.addEventListener('beforeunload',e=>{if(sending||selected.length){e.preventDefault();e.returnValue='';}});
+async function connect(hash){
+ token=new URLSearchParams(hash.replace(/^#/, '')).get('invite')||'';
+ if(!token&&ownerInvite.startsWith('https://')){token=new URL(ownerInvite).hash.slice(8);$('owner').hidden=false;$('invitation').value=ownerInvite;}
+ if(!token){$('access').textContent='WAYからお送りした専用の共有リンクから、このページを開いてください。';return;}
+ try{await rpc('listSubmissions',token);$('access').hidden=true;$('fields').disabled=false;await refresh();}catch(error){$('access').textContent=error.message||'接続できませんでした。ページを再読み込みしてください。';}
+}
+if(typeof google!=='undefined'&&google.script){google.script.url.getLocation(location=>connect(location.hash||''));}
+else{$('access').textContent='プレビュー：Google Driveへの接続は公開設定後に有効になります。';$('fields').disabled=false;$('form').onsubmit=e=>{e.preventDefault();status('プレビューでは送信できません。','error');};}
+</script></body></html>

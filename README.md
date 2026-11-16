@@ -47,3 +47,7 @@ React / TypeScript / Vite。API、認証、バックエンドはありません�
 公開URL: https://way-equity.github.io/cbs-database-demo/
 
 mainへのpush時にGitHub Actionsでテスト・ビルド後、distをPagesへ公開します。リポジトリのSettings → Pages → SourceはGitHub Actionsです。公開先でもデータは各利用者のブラウザ内に保存されます。
+
+## 実資料の共有ページ
+
+`?page=upload` に、複数ファイルと説明をまとめて送信する資料共有ページを追加しています。デモのlocalStorageとは独立したGoogle Apps Script / Drive連携です。保存先は専用のGoogle Driveフォルダです。構成・保存先・アクセス制御・検証状況は [uploads/README.md](uploads/README.md) を参照してください。
