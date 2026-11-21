@@ -12,6 +12,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   deploy:
+    if: vars.CBS_CLOUDFRONT_ENABLED != 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
