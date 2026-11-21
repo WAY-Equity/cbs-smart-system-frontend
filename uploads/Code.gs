@@ -1,6 +1,6 @@
 const FOLDER_ID = '1bv2LLrNlG3Hcj1Wdy7iNd1P0PBVuRk_f';
 const OWNER = 'ju@wayequity.co';
-const WEBSITE = 'https://way-equity.github.io/cbs-database-demo/?page=upload';
+const WEBSITE = 'https://way-equity.github.io/cbs-smart-system/?page=upload';
 const MAX_BYTES = 20 * 1024 * 1024;
 
 function doGet() {

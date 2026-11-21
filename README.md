@@ -44,7 +44,7 @@ React / TypeScript / Vite。API、認証、バックエンドはありません�
 
 ## GitHub Pages
 
-公開URL: https://way-equity.github.io/cbs-database-demo/
+公開URL: https://way-equity.github.io/cbs-smart-system/
 
 mainへのpush時にGitHub Actionsでテスト・ビルド後、distをPagesへ公開します。リポジトリのSettings → Pages → SourceはGitHub Actionsです。公開先でもデータは各利用者のブラウザ内に保存されます。
 
