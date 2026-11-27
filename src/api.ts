@@ -113,26 +113,24 @@ export function query(params: Record<string, string | number | undefined>) {
 // --- shapes returned by the API (see backend docs/API.md) -------------------
 
 export type Option = {id: string; name: string; group?: string};
-export type Lookups = {branches: Option[]; departments: Option[]; people: Option[]; propertyStatuses: Record<string, string>};
+export type Lookups = {
+  branches: Option[]; departments: Option[]; people: Option[]; customers: Option[]; propertyStatuses: Record<string, string>;
+};
 export type Change = {before: unknown; after: unknown};
 export type HistoryEntry = {at: string; actorName: string; action: string; diff: Record<string, Change>};
 export type Page<T> = {items: T[]; total: number};
 
 export type PropertyRow = {
-  id: string; propertyCode: string; name: string; nameKana: string; postalCode: string; address: string;
-  departmentId: string | null; departmentName: string; branchName: string; status: string; note: string;
-  ownerId: string | null; ownerName: string; aliases: string[]; customers: string[];
-  confirmedAt: string | null; confirmedByName: string; updatedAt: string; rowVersion: number;
+  id: string; propertyCode: string; name: string;
+  customerId: string | null; customerName: string;
+  departmentId: string | null; departmentName: string; branchName: string;
+  ownerId: string | null; ownerName: string;
+  status: string; aliases: string[]; updatedAt: string; rowVersion: number;
 };
-export type PropertyDetail = PropertyRow & {
-  contractLines: {id: string; serviceName: string; billToId: string; billToName: string; itemCode: string; workMonths: string; unitAmount: number}[];
-  documents: {id: string; title: string; docType: string; versionNo: number | null; fileName: string; docDate: string; versions: number; ownerName: string; needsReview: boolean}[];
-  history: HistoryEntry[];
-};
+export type PropertyDetail = PropertyRow & {history: HistoryEntry[]};
 
 export type PartyRow = {
-  id: string; name: string; nameKana: string; isCustomer: boolean; isVendor: boolean; representative: string;
-  postalCode: string; address: string; note: string; billingNote: string; deliveryMethod: string; paymentTerms: string;
+  id: string; name: string; isCustomer: boolean; isVendor: boolean; billingNote: string;
   aliases: string[]; propertyCount: number; updatedAt: string; rowVersion: number;
 };
 export type PartyDetail = PartyRow & {properties: {id: string; propertyCode: string; name: string}[]; history: HistoryEntry[]};

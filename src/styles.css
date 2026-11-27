@@ -38,3 +38,5 @@ dialog .related{align-items:center;gap:12px}dialog .related>span:nth-of-type(1){
  dialog .dialog-footer>span:first-child{display:none}
  dialog .dialog-footer button{white-space:nowrap;min-height:46px;flex:1}
 }
+
+.live-table td.live-note{max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#5d7080}
