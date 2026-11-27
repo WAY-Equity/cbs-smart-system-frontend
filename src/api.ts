@@ -5,9 +5,19 @@
 export const API_URL: string = (import.meta as any).env?.VITE_API_URL?.replace(/\/$/, '') ?? '';
 export const apiEnabled = API_URL !== '';
 
-const SESSION_KEY = 'cbs-api-session-v1';
+const SESSION_KEY = 'cbs-api-session-v2';
 
-export type Session = {code: string; personId: string; personName: string};
+// auth is the whole Authorization header value (HTTP basic auth for now; a
+// token from real login, likely Auth0, later).
+export type Session = {auth: string; personId: string; personName: string};
+
+/** `Basic base64(user:password)`, UTF-8 safe (btoa alone fails on non-Latin text). */
+export function basicAuth(user: string, password: string): string {
+  const bytes = new TextEncoder().encode(`${user}:${password}`);
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return `Basic ${btoa(bin)}`;
+}
 
 export function loadSession(): Session | null {
   try {
@@ -39,7 +49,7 @@ export class ApiError extends Error {
 
 function headers(s: Session | null, json = false): HeadersInit {
   const h: Record<string, string> = {};
-  if (s?.code) h.Authorization = `Bearer ${s.code}`;
+  if (s?.auth) h.Authorization = s.auth;
   if (s?.personId) h['X-Person-Id'] = s.personId;
   if (json) h['Content-Type'] = 'application/json';
   return h;

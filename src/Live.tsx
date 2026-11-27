@@ -3,7 +3,7 @@
 import {useEffect, useRef, useState} from 'react';
 import {Search, Download, Plus, ChevronRight, X, CheckCircle2, FileText, Building2, RefreshCw} from 'lucide-react';
 import {
-  api, downloadCsv, query, saveSession, ApiError,
+  api, basicAuth, downloadCsv, query, saveSession, ApiError,
   type Session, type Lookups, type Page, type PropertyRow, type PropertyDetail, type PartyRow, type PartyDetail, type HistoryEntry,
 } from './api';
 
@@ -61,7 +61,8 @@ function History({items, lookups}: {items: HistoryEntry[]; lookups: Lookups | nu
 // --- sign-in -------------------------------------------------------------------
 
 export function SignIn({onDone}: {onDone: (s: Session) => void}) {
-  const [code, setCode] = useState('');
+  const [user, setUser] = useState('');
+  const [password, setPassword] = useState('');
   const [people, setPeople] = useState<Lookups['people'] | null>(null);
   const [person, setPerson] = useState('');
   const [error, setError] = useState('');
@@ -71,7 +72,7 @@ export function SignIn({onDone}: {onDone: (s: Session) => void}) {
     setBusy(true);
     setError('');
     try {
-      const l = await api<Lookups>({code, personId: '', personName: ''}, 'GET', '/api/v1/lookups');
+      const l = await api<Lookups>({auth: basicAuth(user.trim(), password), personId: '', personName: ''}, 'GET', '/api/v1/lookups');
       setPeople(l.people);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : '確認できませんでした。');
@@ -86,15 +87,16 @@ export function SignIn({onDone}: {onDone: (s: Session) => void}) {
       setError('お名前を選んでください。');
       return;
     }
-    const s = {code, personId: p.id, personName: p.name};
+    const s = {auth: basicAuth(user.trim(), password), personId: p.id, personName: p.name};
     saveSession(s);
     onDone(s);
   }
   return <section className="card live-signin">
     <h2>CBSスマートシステムに入る</h2>
     {!people ? <form onSubmit={check}>
-      <p>社内で共有された合言葉を入力してください。</p>
-      <label><span>合言葉</span><input autoFocus type="password" autoComplete="current-password" value={code} onChange={e => setCode(e.target.value)} required/></label>
+      <p>社内で共有されたユーザー名とパスワードを入力してください。</p>
+      <label><span>ユーザー名</span><input autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} autoComplete="username" value={user} onChange={e => setUser(e.target.value)} required/></label>
+      <label><span>パスワード</span><input type="password" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required/></label>
       {error && <p className="error" role="alert">{error}</p>}
       <button className="primary big" disabled={busy}>{busy ? '確認しています…' : '次へ'}</button>
     </form> : <form onSubmit={finish}>

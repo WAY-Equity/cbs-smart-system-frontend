@@ -31,7 +31,7 @@ React / TypeScript / Vite。API、認証、バックエンドはありません�
 
 `VITE_API_URL` を指定してビルドすると、「物件台帳」と「取引先」が共通データベース（[cbs-smart-system-backend](https://github.com/WAY-Equity/cbs-smart-system-backend)）に接続します。未指定ならこれまでどおりlocalStorageのデモです。
 
-- 最初に合言葉を入力し、自分の名前を選びます。保存した内容は更新履歴に名前付きで残ります。
+- 最初に共有のユーザー名とパスワード（ベーシック認証）を入力し、自分の名前を選びます。保存した内容は更新履歴に名前付きで残ります。
 - 物件名・別名・物件コード・フリガナ・住所の一部で検索できます（ひらがな、全角・半角、㈱の表記ゆれも同じものとして扱います）。
 - 一覧から開いて「編集する」で更新します。同時に別の人が保存していた場合は、上書きせずにお知らせします。
 - 「CSV出力」は、いま表示している検索・絞り込みの結果をExcelで開けるCSV（UTF-8 BOM付き）で出力します。
@@ -41,7 +41,7 @@ React / TypeScript / Vite。API、認証、バックエンドはありません�
 
 ```sh
 # バックエンド（別ターミナル）: cbs-smart-system-backend で docker compose up --build
-VITE_API_URL=http://127.0.0.1:8080 pnpm dev   # 合言葉は cbs-demo
+VITE_API_URL=http://127.0.0.1:8080 pnpm dev   # ユーザー名 / パスワードは cbs / cbs
 ```
 
 本番で使うには、リポジトリ変数 `VITE_API_URL` にAPIのURLを設定します（GitHub Actionsのビルド時に読み込みます）。
