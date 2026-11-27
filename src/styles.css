@@ -15,3 +15,28 @@ button:disabled{cursor:not-allowed;opacity:.45}.auto-intro{display:flex;gap:16px
 .chat-panel{width:320px;max-width:calc(100vw - 32px);margin-bottom:12px;background:white;border:1px solid #e0e7ed;border-radius:10px;box-shadow:0 8px 28px #173c4920;overflow:hidden;max-height:calc(100dvh - 110px);overflow-y:auto}.chat-header{display:flex;align-items:center;gap:10px;padding:14px;border-bottom:1px solid #edf0f3}.chat-mini-logo{background:#0c8790;border-radius:8px;height:32px;width:32px;display:grid;place-items:center;font-weight:700;color:white;font-size:11px}.chat-header strong{font-size:13px}.chat-header small{display:block;font-size:10px;color:#7f929f;margin-top:4px}.chat-header button{margin-left:auto}.chat-content{padding:15px}.chat-content p{font-size:12px}.chat-content .chat-disclaimer{font-size:10px;color:#7c909d}.chat-shortcut{width:100%;justify-content:space-between;text-align:left;margin-top:8px;padding:10px}.chat-shortcut strong{font-size:12px;display:block}.chat-shortcut small{font-size:10px;display:block;color:#8296a3;margin-top:4px}
 .osaka .chat-panel,.osaka .chat-launcher{background:#1b2937;border-color:#344454;color:#dce7ef}.osaka .chat-launcher:hover{background:#23424e;border-color:#73c7d4}.osaka .chat-header{border-color:#304252}.osaka .chat-orb,.osaka .chat-mini-logo{background:#368c9c}.osaka .chat-status,.osaka .chat-notification{border-color:#1b2937}.osaka .chat-disclaimer,.osaka .chat-header small,.osaka .chat-shortcut small,.osaka .chat-label>span{color:#a3b8c7}
 main{padding-bottom:100px}@media(max-width:760px){.chat-widget{right:16px;bottom:16px}}
+/* Live (API) screens: larger text and touch targets for everyday office use */
+.live-actions{display:flex;gap:10px;justify-content:flex-end;margin:-8px 0 16px}.live-actions button{min-height:46px;font-size:15px;padding:10px 18px}
+.live-banner{background:#e9f6ef;color:#1f5d48}.osaka .live-banner{background:#1f3b33;color:#b0e0cb}
+.live-signin{max-width:460px;margin:20px auto;padding:30px}.live-signin h2{margin:0 0 8px;font-size:20px}.live-signin p{color:#5a6d7a;font-size:15px;line-height:1.7}.live-signin form{display:grid;gap:16px}.live-signin label{display:grid;gap:6px;font-size:14px;font-weight:600}.live-signin input,.live-signin select{font-size:17px;padding:12px}
+button.big{min-height:50px;font-size:16px}
+.list-card .search input{font-size:16px;min-height:44px}
+.live-table tbody tr{cursor:pointer}.live-table tbody tr:hover{background:#f3f9fa}.osaka .live-table tbody tr:hover{background:#1d2c3a}
+.live-table td{font-size:14px}.live-table .row-title{font-size:15px}
+.live-check{display:flex!important;flex-direction:row!important;align-items:center;gap:10px;font-size:14px}.live-check input,dialog .field-grid .live-check input{width:22px;height:22px;min-height:0;flex:none;margin:0}
+dialog .field-grid input,dialog .field-grid select,dialog .field-grid textarea{font-size:16px;min-height:44px;width:100%}
+dialog .related{align-items:center;gap:12px}dialog .related>span:nth-of-type(1){flex:1;display:grid;gap:3px}
+@media(max-width:760px){
+ .live-name{display:none}.live-actions{margin:0 0 12px}.live-actions button{flex:1}
+ .live-table thead{display:none}
+ .live-table,.live-table tbody,.live-table tr,.live-table td{display:block;width:100%}
+ .live-table tr{border-bottom:1px solid #e2e8ee;padding:12px 14px;position:relative}
+ .live-table td{border:0;padding:3px 0}
+ .live-table td[data-label]:not([data-label="物件"]):not([data-label="会社名"])::before{content:attr(data-label)'：';color:#7b8b96;font-size:12px;margin-right:4px}
+ .live-table .live-chevron{position:absolute;right:10px;top:16px;width:auto}
+ dialog{width:100vw;max-width:none;max-height:none;height:100dvh;border-radius:0;margin:0;border:0}
+ dialog .dialog-footer>span:first-child{display:none}
+ dialog .dialog-footer button{white-space:nowrap;min-height:46px;flex:1}
+}
+
+.live-table td.live-note{max-width:360px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#5d7080}
