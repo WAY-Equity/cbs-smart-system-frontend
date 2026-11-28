@@ -9,7 +9,7 @@ pnpm install
 pnpm dev
 ```
 
-ビルド・確認：`pnpm build` / `pnpm test`。Node.js 22.6以降を使用します。
+ビルド・確認：`pnpm build`。Node.js 22.6以降を使用します。
 
 ## 操作
 
@@ -58,7 +58,7 @@ The demo and `?page=upload` entry are behind the CBS Auth0 login screen. The
 public SPA configuration is in `src/auth-config.ts`; no client secret is used.
 Authorization Code with PKCE uses the official Auth0 React SDK and keeps tokens
 in memory. The app checks session validity every minute and on tab visibility.
-Login returns to the original local route, including an upload invitation fragment.
+Login returns to the original local route, including the upload page.
 External return URLs and stale OAuth callback parameters are rejected.
 
 Local development uses port **5173**; preview uses **4173** (strict ports). Auth0
@@ -79,8 +79,6 @@ Post Login; `pre-registration.cjs` is attached to Pre User Registration. Both
 are scoped to the CBS client and require the exact invited email addresses.
 Post Login additionally requires `email_verified === true` and the email
 connection. Keep the two allowlists synchronized and redeploy Actions after edits.
-`pnpm test` checks every invited address, rejected addresses, unverified users,
-other connection types, client isolation, and safe callback restoration.
 
 Auth0 configuration completed on 2026-11-27: Identifier First is enabled and
 the email connection's blanket signup block is replaced by the deployed
@@ -102,7 +100,7 @@ settings and translated Actions are live; local UI copy removals await deploymen
 
 This is a static fictional-data demo. Auth0 gates the normal application UI;
 static assets are still public. The Apps Script upload service retains its
-separate invitation-token authorization. Future business APIs must independently
+server-side Auth0 UserInfo validation and the same eight-email allowlist. Future business APIs must independently
 validate Auth0 tokens and enforce authorization server-side.
 
 ### Deployment verification — 2026-11-27
@@ -142,3 +140,16 @@ Do not claim Japanese email delivery until a provider is connected and tested.
   securely connect its credentials to Auth0's Amazon SES provider, set the sender
   on both provider and passwordless connection, and verify receipt of a Japanese
   OTP through the actual Auth0 flow. Never store AWS keys in this repository.
+
+
+### Feedback portal deployment
+
+Set the repository-level Actions variable `CBS_FEEDBACK_ORIGIN` to the deployed portal origin (currently `https://d23dpjv1ust0j7.cloudfront.net`). The build workflow passes it as `VITE_CBS_FEEDBACK_ORIGIN`; production builds require an HTTPS URL. For a local production build, set that environment variable before `pnpm build`. Local development defaults to `http://127.0.0.1:5174`.
+
+Deploy the portal's matching `cbs-feedback-init` listener before this frontend. It validates the parent window and configured origin, then replies with ready and current answer state; referrer headers are not used. The separate-tab link is the fallback when the browser blocks embedded Basic authentication.
+
+Pull-request builds without repository variables use `https://feedback.invalid` only for validation. PR artifacts are never deployed; main/release builds still require the real portal variable.
+
+Uploads use the existing Auth0 login. Tokens are passed in memory through an origin-checked, frame-bound message bridge, never in URLs. Apps Script verifies each token through the fixed Auth0 UserInfo endpoint and requires a verified passwordless identity in the eight-email allowlist. Closing the popup preserves the form and does not cancel an upload.
+
+Auth0 intentionally uses its `localstorage` cache to survive refreshes. Cached tokens are readable by same-origin JavaScript and persist across browser sessions; shared-computer users should log out when finished. Normal token expiry still applies; the eight-email allowlist remains enforced by Auth0.

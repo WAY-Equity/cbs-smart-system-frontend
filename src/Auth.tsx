@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type MouseEvent } from 'react';
 import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
 import { LogOut, Mail } from 'lucide-react';
 import App from './App';
@@ -7,6 +7,20 @@ import { authConfig, safeReturnTo } from './auth-config';
 
 function AuthenticatedDemo() {
   const auth = useAuth0();
+  const [search, setSearch] = useState(window.location.search);
+  useEffect(() => {
+    const syncRoute = () => setSearch(window.location.search);
+    window.addEventListener('popstate', syncRoute);
+    return () => window.removeEventListener('popstate', syncRoute);
+  }, []);
+  function navigate(event: MouseEvent<HTMLAnchorElement>) {
+    // Preserve normal open-in-new-tab behavior for modified clicks.
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    event.preventDefault();
+    window.history.pushState({}, '', event.currentTarget.href);
+    setSearch(window.location.search);
+    window.scrollTo(0, 0);
+  }
   const [failed, setFailed] = useState(false);
   const [expired, setExpired] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -42,19 +56,19 @@ function AuthenticatedDemo() {
           setBusy(true); setFailed(false);
           void auth.loginWithRedirect({
             appState: { returnTo: safeReturnTo(window.location.href, window.location.origin) },
-            authorizationParams: { connection: 'email', prompt: 'login' },
+            authorizationParams: { connection: 'email' },
           }).catch(() => { setFailed(true); setBusy(false); });
         }}><Mail size={18}/>{busy ? 'ログイン画面を開いています…' : 'メールでログイン'}</button>
       </section>
     </main>
   );
   const account = <div className="auth-account"><span title={auth.user?.email}>{auth.user?.email}</span><button type="button" className="icon-button" aria-label="ログアウト" title="ログアウト" disabled={busy} onClick={logout}><LogOut size={17}/></button>{failed && <span role="alert">ログアウトできませんでした。</span>}</div>;
-  if (new URLSearchParams(window.location.search).get('page') === 'upload') return <><header className="auth-upload-header"><a href="/">CBSスマートシステム</a>{account}</header><UploadPage/></>;
+  if (new URLSearchParams(search).get('page') === 'upload') return <><header className="auth-upload-header"><a href="/" onClick={navigate}>CBSスマートシステム</a>{account}</header><UploadPage/></>;
   return <App accountActions={account}/>;
 }
 
 export default function Auth() {
-  return <Auth0Provider domain={authConfig.domain} clientId={authConfig.clientId} cacheLocation="memory"
+  return <Auth0Provider domain={authConfig.domain} clientId={authConfig.clientId} cacheLocation="localstorage"
     authorizationParams={{ redirect_uri: window.location.origin + '/', scope: 'openid profile email', connection: 'email', ui_locales: 'ja' }}
     onRedirectCallback={appState => { window.history.replaceState({}, document.title, safeReturnTo(appState?.returnTo, window.location.origin)); }}>
     <AuthenticatedDemo/>
