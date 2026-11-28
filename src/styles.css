@@ -49,6 +49,6 @@ html{scroll-padding-bottom:calc(112px + env(safe-area-inset-bottom,0px))}
 
 .theme-toggle{width:38px;height:38px;flex-shrink:0;color:var(--cbs-orange-ink);background:var(--cbs-orange-wash)}.dark-theme .theme-toggle{color:#ffb452;background:#3d3021}.dark-theme{color-scheme:dark}.dark-theme .feedback-dialog{color-scheme:light}.dark-theme .feedback-launcher:not(.share-launcher){background:#282831;color:#e4e4e7;border-color:#4e4e58}.dark-theme .feedback-launcher small{color:#b1b1b9}.dark-theme .feedback-launcher-icon{color:#202029}
 
-.workspace-branch{flex:1;min-width:0}.workspace-branch label{display:block}.workspace .workspace-branch select{width:100%;font-size:16px;font-weight:700;line-height:1.4;padding:6px;color:inherit}.workspace .workspace-icon{font-size:14px;font-weight:700;padding:7px 10px}
+.workspace{padding:6px 8px;margin:18px 0;gap:8px}.workspace-branch{flex:1;min-width:0}.workspace-branch label{display:block}.workspace .workspace-branch select{width:100%;font-size:13px;font-weight:600;line-height:1.4;padding:4px;margin-top:0;color:inherit}.workspace .workspace-icon{display:grid;place-items:center;width:24px;height:24px;flex-shrink:0;font-size:11px;font-weight:600;padding:0}
 
 .share-access{padding:24px;color:#202029;background:#fff}.share-access h3{font-size:18px}.share-access p{line-height:1.8}.share-close-note{margin:0;padding:10px 18px;font-size:12px;line-height:1.6;background:#fff3e3;color:#62400f}

@@ -35,14 +35,13 @@ function validate_(data) {
 }
 
 function saveSubmission(token, data) {
-  authorize_(token);
+  const user=authorize_(token);
   const files = validate_(data);
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(30000)) throw new Error('別の送信を処理中です。少し待って再度送信してください。');
   try {
     const root = DriveApp.getFolderById(FOLDER_ID);
-    const folders = root.getFoldersByName(data.id);
-    const folder = folders.hasNext() ? folders.next() : root.createFolder(data.id);
+    const folder = submissionFolder_(data.id,user);
     const entries = folder.getFilesByName('_submission.json');
     const signature = JSON.stringify({explanation:data.explanation.trim(),files:files.map(f=>({name:f.name,size:f.size,hash:f.hash}))});
     let recordFile, record;
@@ -52,7 +51,7 @@ function saveSubmission(token, data) {
       if (record.signature !== signature) throw new Error('送信内容が変更されています。新しい送信としてやり直してください。');
       if (record.status === 'complete') return receipt_(record);
     } else {
-      record = {id:data.id,at:new Date().toISOString(),explanation:data.explanation.trim(),signature:signature,status:'pending',files:[]};
+      record = {id:data.id,email:user.email.trim().toLowerCase(),at:new Date().toISOString(),explanation:data.explanation.trim(),signature:signature,status:'pending',files:[]};
       recordFile = folder.createFile('_submission.json', JSON.stringify(record), 'application/json');
     }
     for (const file of files) {
@@ -98,27 +97,24 @@ function listSubmissions(token) {
 
 // Large uploads relay 4 MiB chunks to Drive; OAuth credentials never leave Apps Script.
 function beginLargeUpload(token, data) {
-  authorize_(token);
+  const user=authorize_(token);
   if (!data || !/^[a-f0-9-]{36}$/.test(data.id) || typeof data.explanation !== 'string' || !data.explanation.trim() || data.explanation.length>5000 || !Array.isArray(data.files) || !data.files.length || data.files.length>20) throw new Error('送信内容を確認してください。');
   let total=0;
   data.files.forEach(f=>{if(!f || typeof f.name!=='string' || !f.name.trim() || f.name.length>200 || /[\x00-\x1f/\\]/.test(f.name) || !Number.isSafeInteger(f.size) || f.size<=0 || f.size>100*1024*1024)throw new Error('1件100MB以内のファイルを選択してください。');total+=f.size;});
   if(total>1024*1024*1024)throw new Error('合計1GB以内のファイルを選択してください。');
   const lock=LockService.getScriptLock();lock.waitLock(30000);
   try {
-    const root=DriveApp.getFolderById(FOLDER_ID), existing=root.getFoldersByName(data.id);
-    const folder=existing.hasNext()?existing.next():root.createFolder(data.id);
+    const folder=submissionFolder_(data.id,user);
     const entries=folder.getFilesByName('_submission.json');
     const signature=JSON.stringify({explanation:data.explanation.trim(),files:data.files});
     if(entries.hasNext()) {const record=JSON.parse(entries.next().getBlob().getDataAsString());if(record.signature!==signature)throw new Error('送信内容が変更されています。');return {id:record.id};}
-    folder.createFile('_submission.json',JSON.stringify({id:data.id,at:new Date().toISOString(),explanation:data.explanation.trim(),signature,status:'pending',files:[],expected:data.files,uploads:{}}),'application/json');
+    folder.createFile('_submission.json',JSON.stringify({id:data.id,email:user.email.trim().toLowerCase(),at:new Date().toISOString(),explanation:data.explanation.trim(),signature,status:'pending',files:[],expected:data.files,uploads:{}}),'application/json');
     return {id:data.id};
   } finally {lock.releaseLock();}
 }
 function largeRecord_(id) {
   if(!/^[a-f0-9-]{36}$/.test(id))throw new Error('受付番号が無効です。');
-  const folders=DriveApp.getFolderById(FOLDER_ID).getFoldersByName(id);
-  if(!folders.hasNext())throw new Error('受付が見つかりません。');
-  const folder=folders.next(), file=folder.getFilesByName('_submission.json').next();
+  const folder=submissionFolder_(id), file=folder.getFilesByName('_submission.json').next();
   return {folder,file,record:JSON.parse(file.getBlob().getDataAsString())};
 }
 function driveFetch_(url,options) {
@@ -164,4 +160,36 @@ function finishLargeUpload(token,id) {
     if(!folder.getFilesByName('資料の説明.txt').hasNext())folder.createFile('資料の説明.txt',record.explanation,'text/plain');
     record.status='complete';file.setContent(JSON.stringify(record));return receipt_(record);
   } finally {lock.releaseLock();}
+}
+
+// Read only completed intake files; never accept an arbitrary Drive file ID.
+function downloadSubmissionChunk(token,id,index,offset) {
+  authorize_(token);
+  if(!Number.isInteger(index)||index<0||!Number.isSafeInteger(offset)||offset<0)throw new Error('資料の指定が無効です。');
+  const {folder,record}=largeRecord_(id), entry=record.files[index];
+  if(record.status!=='complete'||!entry||!Number.isSafeInteger(entry.size)||entry.size<=0||entry.size>100*1024*1024||offset>=entry.size)throw new Error('資料が見つかりません。');
+  const saved=DriveApp.getFileById(entry.id), parents=saved.getParents();let belongs=false;
+  while(parents.hasNext())if(parents.next().getId()===folder.getId())belongs=true;
+  if(!belongs||saved.isTrashed()||saved.getSize()!==entry.size)throw new Error('資料を確認できませんでした。');
+  const end=Math.min(offset+4*1024*1024,entry.size)-1;
+  const response=driveFetch_('https://www.googleapis.com/drive/v3/files/'+encodeURIComponent(entry.id)+'?alt=media&supportsAllDrives=true',{headers:{Range:'bytes='+offset+'-'+end}});
+  const code=response.getResponseCode();
+  if(code!==206&&!(code===200&&offset===0&&end===entry.size-1))throw new Error('ダウンロードできませんでした。再度お試しください。');
+  const bytes=response.getBlob().getBytes();
+  if(bytes.length!==end-offset+1)throw new Error('資料のサイズを確認できませんでした。');
+  return {base64:Utilities.base64Encode(bytes),offset:end+1,total:entry.size,name:entry.name};
+}
+
+function submissionFolder_(id,user) {
+  if(typeof id!=='string'||!/^[a-f0-9-]{36}$/.test(id))throw new Error('受付番号が無効です。');
+  const root=DriveApp.getFolderById(FOLDER_ID), folders=root.getFolders();
+  // Resolve by immutable submission ID, including folders created before readable names.
+  while(folders.hasNext()){
+    const folder=folders.next();
+    if(folder.getName()===id)return folder;
+    if(folder.getDescription()==='cbs-submission:'+id)return folder;
+  }
+  if(!user)throw new Error('受付が見つかりません。');
+  const name=user.email.trim().toLowerCase()+'-'+Utilities.formatDate(new Date(),'Asia/Tokyo','yyyyMMdd-HHmmss');
+  const folder=root.createFolder(name);folder.setDescription('cbs-submission:'+id);return folder;
 }

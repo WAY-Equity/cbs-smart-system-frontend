@@ -32,3 +32,5 @@ Verified on 2026-11-16: production CBS page loads the invitation-protected form 
 Large uploads use 4 MiB resumable Drive API chunks, with server-side size validation. Deployment requires the Drive API enabled in the Apps Script Cloud project and authorization for script.external_request. These larger limits are not live until that authorization and deployment are completed.
 
 The form now uses a parent-origin allowlist and a random per-frame bridge ID. The parent verifies that requests originate in its own nested Apps Script iframe before sending an access token. Standalone Apps Script visits show a prompt to open the form through CBS. Existing `UPLOAD_INVITATION` Script Properties are unused.
+
+New submission folders use the verified Auth0 email and Japan-time timestamp (`email-yyyyMMdd-HHmmss`). The immutable submission ID is retained in the folder description for retries and downloads; older UUID folders remain readable. Deployed as Apps Script version 8 on 2026-11-28.

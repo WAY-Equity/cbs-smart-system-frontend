@@ -15,8 +15,8 @@ const fields:Record<Kind,string[]>={properties:['name','customerId','branch','de
 const statuses:Record<Kind,string[]>={properties:['要確認','確認済み'],jobs:['日程調整中','代務調整中','予定確定','作業完了'],reports:['資料待ち','作成中','確認待ち','提出済み'],quotes:['現地調査','見積作成中','提出済み','追客中','受注','見送り'],documents:['最新版','更新確認中','旧版']};
 function Badge({value}:{value:string}){return <span className={'badge '+(/待ち|調整|要確認|更新確認/.test(value)?'amber':/済み|完了|確定|受注|最新版/.test(value)?'green':'neutral')}>{value}</span>}
 export default function App({accountActions}:{accountActions:ReactNode}){
- const [dark,setDark]=useState(()=>{try{const saved=localStorage.getItem('cbs-theme');return saved?saved==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches}catch{return false}});
- useEffect(()=>{try{localStorage.setItem('cbs-theme',dark?'dark':'light')}catch{/* Theme still works when storage is unavailable. */}},[dark]);
+ const [dark,setDark]=useState(()=>{try{return localStorage.getItem('cbs-theme-preference')==='dark'}catch{return false}});
+ useEffect(()=>{try{localStorage.setItem('cbs-theme-preference',dark?'dark':'light')}catch{/* Theme still works when storage is unavailable. */}},[dark]);
  const [notice,setNotice]=useState(''); const [storageError,setStorageError]=useState('');
  const [db,setDb]=useState<Database>(()=>{try{return readDatabase(localStorage.getItem(STORAGE_KEY),createSeed)}catch{return createSeed()}});
  const [workspace,setWorkspace]=useState<Branch>('神戸');
