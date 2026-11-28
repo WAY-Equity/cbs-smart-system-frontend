@@ -1,2 +1,3 @@
 allowBuilds:
+  browser-tabs-lock: false # Postinstall only prints a promotional message.
   esbuild: true

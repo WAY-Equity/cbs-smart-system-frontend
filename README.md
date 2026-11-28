@@ -21,7 +21,7 @@ pnpm dev
 
 ## データと保存
 
-React / TypeScript / Vite。API、認証、バックエンドはありません。保存先はlocalStorageです。ブラウザ間・端末間では共有されません。実データや機密情報は入力しないでください。添付資料はサンプル本文で、ファイルのアップロード・メール送信・顧客への提出は行いません。「提出済み」はデモ上の状態です。
+React / TypeScript / Vite。ログインにはAuth0のメール確認コードを使用します。業務データ用のAPI・バックエンドはありません。保存先はlocalStorageです。ブラウザ間・端末間では共有されません。実データや機密情報は入力しないでください。添付資料はサンプル本文で、ファイルのアップロード・メール送信・顧客への提出は行いません。「提出済み」はデモ上の状態です。
 
 参考UI：cn-logisticsのサイドナビ、カード、一覧・詳細構成。元プロジェクトの環境変数、顧客データ、認証やバックエンドは使用していません。
 
@@ -51,3 +51,94 @@ main への push で GitHub Actions がテストとビルドを行い、プラ�
 ## 実資料の共有ページ
 
 `?page=upload` に、複数ファイルと説明をまとめて送信する資料共有ページを追加しています。デモのlocalStorageとは独立したGoogle Apps Script / Drive連携です。保存先は専用のGoogle Driveフォルダです。構成・保存先・アクセス制御・検証状況は [uploads/README.md](uploads/README.md) を参照してください。
+
+## Auth0 login
+
+The demo and `?page=upload` entry are behind the CBS Auth0 login screen. The
+public SPA configuration is in `src/auth-config.ts`; no client secret is used.
+Authorization Code with PKCE uses the official Auth0 React SDK and keeps tokens
+in memory. The app checks session validity every minute and on tab visibility.
+Login returns to the original local route, including an upload invitation fragment.
+External return URLs and stale OAuth callback parameters are rejected.
+
+Local development uses port **5173**; preview uses **4173** (strict ports). Auth0
+callbacks and logout URLs have a trailing `/`, and web origins have no path:
+
+- `http://localhost:5173/`
+- `http://127.0.0.1:5173/`
+- `http://localhost:4173/`
+- `http://127.0.0.1:4173/`
+- `https://d3kk6kbbp4x94g.cloudfront.net/`
+
+Auth0 tenant: `dev-m4cnup0ujpc2l7wn.us.auth0.com`. Application: **CBS**, client
+`hJYhsluI7zSN0JvevTtUODyMvInFN036`, type Single Page Application. Enable only
+the passwordless `email` connection for this application.
+
+The deployed Actions are versioned in `auth0/`: `post-login.cjs` is attached to
+Post Login; `pre-registration.cjs` is attached to Pre User Registration. Both
+are scoped to the CBS client and require the exact invited email addresses.
+Post Login additionally requires `email_verified === true` and the email
+connection. Keep the two allowlists synchronized and redeploy Actions after edits.
+`pnpm test` checks every invited address, rejected addresses, unverified users,
+other connection types, client isolation, and safe callback restoration.
+
+Auth0 configuration completed on 2026-11-27: Identifier First is enabled and
+the email connection's blanket signup block is replaced by the deployed
+eight-address registration allowlist (approved by the owner). The email
+connection is enabled only for CBS. Database and Google connections are disabled
+for CBS. The hosted login-id screen uses the CBS logo and Japanese
+wording, with signup link text removed. The same allowlist is enforced again
+after email verification on every login. A live uninvited-address attempt
+was denied. Both Actions now return the Japanese message
+“このメールアドレスではログインできません。ご案内済みのメールアドレスをご使用ください。”
+
+
+Japanese (`ja`) is enabled in the tenant supported languages. The CBS SDK
+already sends `ui_locales=ja`; enabling the locale prevents fallback to English.
+Japanese login-id custom text is recorded in `auth0/login-id.ja.json`. The
+passwordless email-code screen uses Auth0’s built-in Japanese translations,
+including validation errors, edit, continue, and resend controls. These hosted
+settings and translated Actions are live; local UI copy removals await deployment.
+
+This is a static fictional-data demo. Auth0 gates the normal application UI;
+static assets are still public. The Apps Script upload service retains its
+separate invitation-token authorization. Future business APIs must independently
+validate Auth0 tokens and enforce authorization server-side.
+
+### Deployment verification — 2026-11-27
+
+Published the tested build to the existing `site-e91f237` bucket and CloudFront
+`E22CAQUIC8KOUP`; entry-page invalidation completed. Public HTML and JavaScript
+matched the local build byte-for-byte. Live verification completed email OTP
+login as `ju@wayequity.co`, returned to the authenticated demo, and verified
+logout and anonymous protection of `?page=upload`. Localhost reached the hosted
+email OTP screen and a non-allowlisted address was denied by the live guard.
+All 15 automated tests passed. No OTP or token is stored in repository files.
+
+### Japanese OTP email template
+
+The Japanese subject and CBS-branded body are saved on the passwordless email
+connection and recorded in `auth0/passwordless-email.ja.subject.txt` and
+`auth0/passwordless-email.ja.html`. The three-minute expiry matches the existing
+180-second connection setting. **Delivery is pending a custom email provider:**
+Auth0's built-in development sender ignores custom email templates. Auth0 still uses its built-in provider while WAY SES production approval is pending.
+Do not claim Japanese email delivery until a provider is connected and tested.
+
+
+### WAY SES setup — 2026-11-27
+
+- Region: `ap-northeast-1`; account: `089601768612`.
+- Sender planned: `CBSスマートシステム <cbs@wayequity.co>`.
+- Created SES domain identity `wayequity.co` with 2048-bit Easy DKIM and added
+  its three CNAME verification records to Route 53 zone `Z0793828332JATNBWFS1S`.
+- Enabled account-level suppression for both bounces and complaints.
+- Submitted a transactional production-access request; AWS review is pending.
+- Prepared `auth0/ses-send-policy.json` to restrict a dedicated Auth0 IAM user's
+  send permission to this sender and the eight invited recipients. This policy
+  is not attached yet; no new access keys have been created.
+- Do not activate SES in Auth0 while the account is in sandbox: CBS recipients
+  are outside the verified WAY domain and would lose OTP delivery.
+- After approval: confirm DKIM success, provision a dedicated send-only IAM user,
+  securely connect its credentials to Auth0's Amazon SES provider, set the sender
+  on both provider and passwordless connection, and verify receipt of a Japanese
+  OTP through the actual Auth0 flow. Never store AWS keys in this repository.
