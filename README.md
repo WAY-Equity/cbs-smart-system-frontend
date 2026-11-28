@@ -78,7 +78,12 @@ The deployed Actions are versioned in `auth0/`: `post-login.cjs` is attached to
 Post Login; `pre-registration.cjs` is attached to Pre User Registration. Both
 are scoped to the CBS client and require the exact invited email addresses.
 Post Login additionally requires `email_verified === true` and the email
-connection. Keep the two allowlists synchronized and redeploy Actions after edits.
+connection. Keep all three email allowlists synchronized: `auth0/pre-registration.cjs`,
+`auth0/post-login.cjs`, and `uploads/Code.gs` (`ALLOWED_EMAILS`). When adding or
+removing someone, update all three, redeploy both Auth0 Actions, and publish a new
+Apps Script deployment version. Otherwise login and upload access can disagree.
+Keep the Apps Script check: the tenant UserInfo endpoint alone does not restrict
+tokens to the CBS application.
 
 Auth0 configuration completed on 2026-11-27: Identifier First is enabled and
 the email connection's blanket signup block is replaced by the deployed
@@ -146,7 +151,7 @@ Do not claim Japanese email delivery until a provider is connected and tested.
 
 Set the repository-level Actions variable `CBS_FEEDBACK_ORIGIN` to the deployed portal origin (currently `https://d23dpjv1ust0j7.cloudfront.net`). The build workflow passes it as `VITE_CBS_FEEDBACK_ORIGIN`; production builds require an HTTPS URL. For a local production build, set that environment variable before `pnpm build`. Local development defaults to `http://127.0.0.1:5174`.
 
-Deploy the portal's matching `cbs-feedback-init` listener before this frontend. It validates the parent window and configured origin, then replies with ready and current answer state; referrer headers are not used. The separate-tab link is the fallback when the browser blocks embedded Basic authentication.
+Deploy the portal's matching `cbs-feedback-init` listener before this frontend. It validates the parent window and configured origin, then replies with ready and current answer state; referrer headers are not used. The feedback portal still uses separate HTTP Basic authentication. Browsers that block authentication inside a cross-origin iframe may prevent the form from loading; the separate-tab fallback has been removed from the UI.
 
 Pull-request builds without repository variables use `https://feedback.invalid` only for validation. PR artifacts are never deployed; main/release builds still require the real portal variable.
 

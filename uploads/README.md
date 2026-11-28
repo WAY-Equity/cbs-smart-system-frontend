@@ -17,8 +17,8 @@ Storage: https://drive.google.com/drive/folders/1PGRk1HgB_ArV5oIRCijzROlPlObjL94
 - Multiple selections append; files can be removed before submission. One explanation applies to the entire submission.
 - Up to 20 nonempty files, 100 MB each and 1 GB total; explanation is required, up to 5,000 characters.
 - A submission gets its own folder. Files use numbered original names to avoid collisions; explanation is also saved as `資料の説明.txt` and metadata as `_submission.json`.
-- Only complete submissions appear in history. Files are never publicly shared; history includes filenames, sizes, dates, and explanations, but no download links.
-- All eight authorized CBS users can submit and view the shared submission history. The login token is carried only in memory and RPC arguments, not URLs or Drive metadata. Every RPC validates it with Auth0; failures and unavailable Auth0 responses deny access.
+- Only complete submissions appear in history. Files are never publicly shared; history includes filenames, sizes, dates, and explanations, with authenticated download buttons.
+- This is one shared intake folder: all eight authorized CBS users can submit, view every submission and its explanation, and download every submitted file, including submissions from other organizations on the allowlist. `record.email` records the sender; it does not restrict readers. The login token is carried only in memory and RPC arguments, not URLs or Drive metadata. Every RPC validates it with Auth0; failures and unavailable Auth0 responses deny access.
 - An unchanged retry in the same open page reuses the submission ID, checks file hashes, and resumes interrupted saves. After a page reload, check history before resubmitting. Refreshing or changing a failed submission may create another batch; pending partial files remain in Drive for recovery.
 - History scans up to 100 submission folders. Add an index before the intake exceeds that size. Apps Script quotas and Drive capacity apply.
 - Google DriveApp requests broad Drive permission even though this code targets only the intake folder.
@@ -34,3 +34,9 @@ Large uploads use 4 MiB resumable Drive API chunks, with server-side size valida
 The form now uses a parent-origin allowlist and a random per-frame bridge ID. The parent verifies that requests originate in its own nested Apps Script iframe before sending an access token. Standalone Apps Script visits show a prompt to open the form through CBS. Existing `UPLOAD_INVITATION` Script Properties are unused.
 
 New submission folders use the verified Auth0 email and Japan-time timestamp (`email-yyyyMMdd-HHmmss`). The immutable submission ID is retained in the folder description for retries and downloads; older UUID folders remain readable. Deployed as Apps Script version 8 on 2026-11-28.
+
+## Access and deployment maintenance
+
+Keep `ALLOWED_EMAILS` in `Code.gs` synchronized with both `auth0/pre-registration.cjs` and `auth0/post-login.cjs`. Redeploy both Auth0 Actions and Apps Script whenever membership changes. UserInfo validation does not by itself restrict access to one application in the tenant.
+
+The upload form's allowed parent origins are currently maintained in `Index.html` (`connect()`). If the frontend origin changes, update that list, the Auth0 callback/logout/web-origin settings, the portal's `CBS_EMBED_ORIGIN` Actions variable, and `way-infra/cbs-release-portal`'s `embedOrigin` stack config, then rebuild/redeploy the affected services. Localhost entries support local review; they do not bypass server-side Auth0 validation. Origin configuration is not yet centralized.

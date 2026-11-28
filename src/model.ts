@@ -29,7 +29,13 @@ export function validateRelations(db:Database){
  db.reports.forEach(x=>{if(!db.jobs.some(j=>j.id===x.jobId&&j.propertyId===x.propertyId))errors.push(x.id+':job');});
  return errors;
 }
-export function encodeCsv(rows:string[][]){return '\uFEFF'+rows.map(row=>row.map(cell=>'"'+(/^[=+@\-]/.test(cell)?"'"+cell:cell).replaceAll('"','""')+'"').join(',')).join('\r\n');}
+export function encodeCsv(rows:string[][]){
+ const plainNumber=/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
+ return '\uFEFF'+rows.map(row=>row.map(cell=>{
+  const safe=/^[=+@\-\t\r]/.test(cell)&&!plainNumber.test(cell)?"'"+cell:cell;
+  return '"'+safe.replaceAll('"','""')+'"';
+ }).join(',')).join('\r\n');
+}
 export function readDatabase(raw:string|null,fallback:()=>Database):Database{
  if(!raw)return fallback();
  const data=JSON.parse(raw) as Database;
